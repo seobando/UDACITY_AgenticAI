@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 from openai import OpenAI
@@ -17,11 +18,11 @@ class LLM:
         model: str = "gpt-4o-mini",
         temperature: float = 0.0,
         tools: Optional[List[Tool]] = None,
-        api_key: Optional[str] = None
+        api_key: Optional[str] = os.getenv("OPENAI_API_KEY")
     ):
         self.model = model
         self.temperature = temperature
-        self.client = OpenAI(api_key=api_key) if api_key else OpenAI()
+        self.client = OpenAI(api_key=api_key, base_url="https://openai.vocareum.com/v1")
         self.tools: Dict[str, Tool] = {
             tool.name: tool for tool in (tools or [])
         }
