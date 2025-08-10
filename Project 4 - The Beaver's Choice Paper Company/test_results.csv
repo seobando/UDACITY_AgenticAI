@@ -1,0 +1,21 @@
+request_id,request_date,cash_balance,inventory_value,response
+1,2025-04-01,45089.7,4910.299999999999,Quoted 200 x Cardstock at $0.15/unit. Bulk discount applied: 0%. Order fulfilled from stock.
+2,2025-04-03,45089.7,4910.299999999999,Could not generate quote.
+3,2025-04-04,45090.2,4909.799999999999,Quoted 10 x A4 paper at $0.05/unit. Bulk discount applied: 0%. Order fulfilled from stock.
+4,2025-04-05,45109.95,4850.55,"Quoted 500 x Cardstock at $0.15/unit. Bulk discount applied: 0%. Only 395 in stock, ordered 105 more for delivery on 2025-04-09."
+5,2025-04-05,45109.95,4850.55,"Quoted 500 x Cardstock at $0.15/unit. Bulk discount applied: 0%. Only 0 in stock, ordered 500 more for delivery on 2025-04-09."
+6,2025-04-06,45109.95,4850.55,"Quoted 500 x Cardstock at $0.15/unit. Bulk discount applied: 0%. Only 0 in stock, ordered 500 more for delivery on 2025-04-10."
+7,2025-04-07,45123.049999999996,4837.45,"Quoted 500 x A4 paper at $0.05/unit. Bulk discount applied: 0%. Only 262 in stock, ordered 238 more for delivery on 2025-04-11."
+8,2025-04-07,45173.049999999996,4787.45,Quoted 500 x Colored paper at $0.10/unit. Bulk discount applied: 0%. Order fulfilled from stock.
+9,2025-04-07,45213.049999999996,4747.45,Quoted 200 x Glossy paper at $0.20/unit. Bulk discount applied: 0%. Order fulfilled from stock.
+13,2025-04-08,45213.049999999996,4747.45,"Quoted 500 x Cardstock at $0.15/unit. Bulk discount applied: 0%. Only 0 in stock, ordered 500 more for delivery on 2025-04-12."
+12,2025-04-08,45213.049999999996,4747.45,"Quoted 200 x Cardstock at $0.15/unit. Bulk discount applied: 0%. Only 0 in stock, ordered 200 more for delivery on 2025-04-12."
+10,2025-04-08,45213.049999999996,4747.45,"Quoted 500 x Cardstock at $0.15/unit. Bulk discount applied: 0%. Only 0 in stock, ordered 500 more for delivery on 2025-04-12."
+11,2025-04-08,45232.399999999994,4670.049999999999,"Quoted 500 x Glossy paper at $0.20/unit. Bulk discount applied: 0%. Only 387 in stock, ordered 113 more for delivery on 2025-04-12."
+14,2025-04-09,45141.399999999994,4761.049999999999,"Quoted 5 x A4 paper at $0.05/unit. Bulk discount applied: 0%. Only 0 in stock, ordered 5 more for delivery on 2025-04-09."
+15,2025-04-12,44852.899999999994,5049.549999999999,Quoted 10 x Colored paper at $0.10/unit. Bulk discount applied: 0%. Order fulfilled from stock.
+16,2025-04-13,44852.899999999994,5049.549999999999,Could not generate quote.
+17,2025-04-14,44866.799999999996,5021.749999999999,"Quoted 1000 x Colored paper at $0.10/unit. Bulk discount applied: 10%. Only 278 in stock, ordered 722 more for delivery on 2025-04-18."
+18,2025-04-14,44941.799999999996,4946.749999999999,Quoted 500 x Cardstock at $0.15/unit. Bulk discount applied: 0%. Order fulfilled from stock.
+19,2025-04-15,45032.049999999996,4675.999999999999,"Quoted 2000 x Cardstock at $0.15/unit. Bulk discount applied: 10%. Only 1805 in stock, ordered 195 more for delivery on 2025-04-19."
+20,2025-04-17,45032.049999999996,4675.999999999999,Could not generate quote.
