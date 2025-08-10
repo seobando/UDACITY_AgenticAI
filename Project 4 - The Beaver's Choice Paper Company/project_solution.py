@@ -595,18 +595,108 @@ def search_quote_history(search_terms: List[str], limit: int = 5) -> List[Dict]:
 """Set up tools for your agents to use, these should be methods that combine the database functions above
  and apply criteria to them to ensure that the flow of the system is correct."""
 
+# Load environment variables
+dotenv.load_dotenv()
+OPENAI_API_KEY = os.getenv("UDACITY_OPENAI_API_KEY")
 
 # Tools for inventory agent
+class InventoryAgent:
+    def __init__(self, db_engine):
+        self.db_engine = db_engine
+
+    def check_stock(self, item_name, as_of_date):
+        df = get_stock_level(item_name, as_of_date)
+        return int(df["current_stock"].iloc[0]) if not df.empty else 0
+
+    def needs_restock(self, item_name, as_of_date):
+        inventory_df = pd.read_sql("SELECT * FROM inventory WHERE item_name = ?", self.db_engine, params=(item_name,))
+        if inventory_df.empty:
+            return False
+        min_stock = int(inventory_df["min_stock_level"].iloc[0])
+        current_stock = self.check_stock(item_name, as_of_date)
+        return current_stock < min_stock
 
 
 # Tools for quoting agent
+class QuotingAgent:
+    def __init__(self, db_engine):
+        self.db_engine = db_engine
+
+    def generate_quote(self, item_name, quantity, as_of_date):
+        inventory_df = pd.read_sql("SELECT * FROM inventory WHERE item_name = ?", self.db_engine, params=(item_name,))
+        if inventory_df.empty:
+            return None
+        unit_price = float(inventory_df["unit_price"].iloc[0])
+        # Bulk discount: 10% off for orders > 500 units
+        discount = 0.1 if quantity > 500 else 0.0
+        total = unit_price * quantity * (1 - discount)
+        explanation = f"Quoted {quantity} x {item_name} at ${unit_price:.2f}/unit. Bulk discount applied: {discount*100:.0f}%."
+        return {"total": total, "explanation": explanation}
 
 
 # Tools for ordering agent
+class OrderingAgent:
+    def __init__(self, db_engine):
+        self.db_engine = db_engine
+
+    def order_stock(self, item_name, quantity, as_of_date):
+        inventory_df = pd.read_sql("SELECT * FROM inventory WHERE item_name = ?", self.db_engine, params=(item_name,))
+        if inventory_df.empty:
+            return None
+        unit_price = float(inventory_df["unit_price"].iloc[0])
+        total_price = unit_price * quantity
+        delivery_date = get_supplier_delivery_date(as_of_date, quantity)
+        create_transaction(item_name, "stock_orders", quantity, total_price, delivery_date)
+        return {"ordered": quantity, "delivery_date": delivery_date, "cost": total_price}
 
 
 # Set up your agents and create an orchestration agent that will manage them.
+class OrchestratorAgent:
+    def __init__(self, db_engine):
+        self.inventory_agent = InventoryAgent(db_engine)
+        self.quoting_agent = QuotingAgent(db_engine)
+        self.ordering_agent = OrderingAgent(db_engine)
+        self.db_engine = db_engine
 
+    def handle_request(self, request, as_of_date):
+        # Parse request for item and quantity (simple heuristic)
+        # You may want to use NLP for more robust parsing
+        item_name = None
+        quantity = None
+        for item in paper_supplies:
+            if item["item_name"].lower() in request.lower():
+                item_name = item["item_name"]
+                break
+        # Extract quantity (simple heuristic)
+        import re
+        match = re.search(r"(\d+)", request)
+        quantity = int(match.group(1)) if match else 100
+
+        if not item_name:
+            return "Could not identify requested item."
+
+        stock = self.inventory_agent.check_stock(item_name, as_of_date)
+        needs_restock = self.inventory_agent.needs_restock(item_name, as_of_date)
+
+        quote = self.quoting_agent.generate_quote(item_name, quantity, as_of_date)
+        if not quote:
+            return "Could not generate quote."
+
+        # If not enough stock, order more
+        if stock < quantity:
+            order = self.ordering_agent.order_stock(item_name, quantity - stock, as_of_date)
+            response = (
+                f"{quote['explanation']} Only {stock} in stock, ordered {order['ordered']} more for delivery on {order['delivery_date']}."
+            )
+            # Record sale for available stock
+            if stock > 0:
+                create_transaction(item_name, "sales", stock, stock * float(paper_supplies[0]["unit_price"]), as_of_date)
+        else:
+            # Record sale
+            create_transaction(item_name, "sales", quantity, quote["total"], as_of_date)
+            response = f"{quote['explanation']} Order fulfilled from stock."
+
+        return response
 
 # Run your test scenarios by writing them here. Make sure to keep track of them.
 
@@ -647,6 +737,9 @@ def run_test_scenarios():
     ############
     ############
 
+    # Initialize agents
+    orchestrator = OrchestratorAgent(db_engine)    
+
     results = []
     for idx, row in quote_requests_sample.iterrows():
         request_date = row["request_date"].strftime("%Y-%m-%d")
@@ -668,7 +761,7 @@ def run_test_scenarios():
         ############
         ############
 
-        # response = call_your_multi_agent_system(request_with_date)
+        response = orchestrator.handle_request(request_with_date, request_date)
 
         # Update state
         report = generate_financial_report(request_date)
